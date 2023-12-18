@@ -1,0 +1,16 @@
+{
+  "id": "mig_cltp7ab9oa72492s7b7g",
+  "parentID": "mig_cltp6839oa72492s7b6g",
+  "checksum": "1:bf27c67ba4996deee495e1f2f91389417da1526042d9e730587fae4f56909a21",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "title",
+          "type": "string"
+        },
+        "table": "todos"
+      }
+    }
+  ]
+}

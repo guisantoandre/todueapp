@@ -1,0 +1,11 @@
+{
+  "id": "mig_cltp6839oa72492s7b6g",
+  "checksum": "1:26f12ea8e2789dc32a69315c48c5deff3e2e8c4b6d9c2b45898fdf65073898a5",
+  "operations": [
+    {
+      "addTable": {
+        "table": "todos"
+      }
+    }
+  ]
+}

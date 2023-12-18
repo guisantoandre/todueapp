@@ -1,0 +1,18 @@
+{
+  "id": "mig_cltqdvl82e93l70p9440",
+  "parentID": "mig_cltp7ab9oa72492s7b7g",
+  "checksum": "1:7c9987eb3cb867943671d52426e8d8a8457e27a05e2e91b65a5d9ea5b947afaa",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "is_done",
+          "type": "bool",
+          "notNull": true,
+          "defaultValue": "false"
+        },
+        "table": "todos"
+      }
+    }
+  ]
+}

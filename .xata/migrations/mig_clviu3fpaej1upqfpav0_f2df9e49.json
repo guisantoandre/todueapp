@@ -1,0 +1,19 @@
+{
+  "id": "mig_clviu3fpaej1upqfpav0",
+  "parentID": "mig_clvittnpaej1upqfpau0",
+  "checksum": "1:f2df9e49185747a0cde3063d495e7ecbc43a84d1f2e7faece2fb6eef8901ecdf",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "user",
+          "type": "link",
+          "link": {
+            "table": "users"
+          }
+        },
+        "table": "todos"
+      }
+    }
+  ]
+}
