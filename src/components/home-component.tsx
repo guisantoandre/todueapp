@@ -10,6 +10,7 @@ import { TodosList } from "./todos-list";
 import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { useTodos } from "@/contexts/todos-context";
+import { CompletedTasks } from "./completed-tasks";
 
 type Props = {
    session: Session | null;
@@ -46,6 +47,7 @@ export function HomeComponent({ session, allTodos }: Props) {
             )}
          </div>
          <AddTodoForm session={session} />
+         {session && <CompletedTasks tasks={allTodos} />}
          <TodosList todosList={!session ? todos : allTodos} session={session} />
       </main>
    );
