@@ -11,6 +11,7 @@ import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { useTodos } from "@/contexts/todos-context";
 import { CompletedTasks } from "./completed-tasks";
+import { ClearAllBtn } from "./clear-all";
 
 type Props = {
    session: Session | null;
@@ -47,7 +48,12 @@ export function HomeComponent({ session, allTodos }: Props) {
             )}
          </div>
          <AddTodoForm session={session} />
-         {session && <CompletedTasks tasks={allTodos} />}
+         {session && (
+            <div className="w-full flex items-center justify-between mb-2">
+               <CompletedTasks tasks={allTodos} />
+               {allTodos.length > 0 && <ClearAllBtn />}
+            </div>
+         )}
          <TodosList todosList={!session ? todos : allTodos} session={session} />
       </main>
    );

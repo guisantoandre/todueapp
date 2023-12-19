@@ -106,3 +106,21 @@ export async function deleteTodo(id: string) {
       console.log("[TODOS_DELETE]", err);
    }
 }
+
+export async function deleteAllTodos() {
+   const session = await getServerSession();
+
+   if (session) {
+      const user = await xata.db.users
+         .filter({ email: session?.user?.email })
+         .getFirst();
+
+      try {
+         const data = await xata.db.todos.filter({ user: user?.id }).getAll();
+         await xata.db.todos.delete(data);
+         revalidatePath("/");
+      } catch (err) {
+         console.log("[TODOS_READ_USERLOGGEDIN]", err);
+      }
+   }
+}
