@@ -14,6 +14,7 @@ export async function createTodo(title: string) {
    const session = await getServerSession();
 
    if (session) {
+      // Get user from session
       const user = await xata.db.users
          .filter({ email: session?.user?.email })
          .getFirst();

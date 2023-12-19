@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, X } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
@@ -14,19 +14,23 @@ import { Tooltip } from "./tooltip";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Todo, useTodos } from "@/contexts/todos-context";
 
 type Props = {
-   todos: SelectedPick<TodosRecord, ("title" | "id" | "is_done")[]>[];
+   todosList:
+      | SelectedPick<TodosRecord, ("title" | "id" | "is_done")[]>[]
+      | Todo[];
    session: Session | null;
 };
 
-export function TodosList({ todos, session }: Props) {
+export function TodosList({ todosList, session }: Props) {
    const [isEditing, setIsEditing] = useState(false);
    const [newTodo, setNewTodo] = useState({ id: "", title: "" });
+   const { todos, setTodos } = useTodos();
    const router = useRouter();
 
-   function handleEdit(id: string) {
-      const filteredTodo = todos.find((todo) => todo.id === id);
+   function handleShowEditTodo(id: string) {
+      const filteredTodo = todosList.find((todo) => todo.id === id);
 
       if (filteredTodo && filteredTodo.title) {
          setIsEditing(true);
@@ -37,30 +41,116 @@ export function TodosList({ todos, session }: Props) {
       }
    }
 
+   async function handleUpdateTodo(id: string, title: string) {
+      try {
+         if (id && title) {
+            await updateTodoTitle(newTodo.id, newTodo.title);
+            router.refresh();
+            toast.success("Todo updated");
+         } else {
+            toast.info("Title is required");
+         }
+      } catch (error) {
+         toast.error("Something went wrong, try again");
+      } finally {
+         setIsEditing(false);
+      }
+   }
+
+   async function handleDelete(id: string) {
+      if (!session) {
+         const confirmed = window.confirm(
+            "Are you sure you want to delete this todo?"
+         );
+
+         if (id && confirmed) {
+            let listTodos = [...todos];
+            let filteredList = listTodos.filter((item) => item.id !== id);
+            setTodos(filteredList);
+            localStorage.setItem("todos", JSON.stringify(filteredList));
+         }
+      }
+
+      if (session) {
+         try {
+            const confirmed = window.confirm(
+               "Are you sure you want to delete this todo?"
+            );
+
+            if (id && confirmed) {
+               await deleteTodo(id);
+               router.refresh();
+               toast.success("Todo deleted");
+            }
+         } catch (error) {
+            toast.error("Something went wrong, try again");
+         }
+      }
+   }
+
    return (
       <>
+         {todosList.length === 0 && todos.length === 0 && (
+            <div className="mt-20 text-center text-slate-400">
+               <img
+                  src="/add-tasks-image.svg"
+                  alt="Add Tasks Image"
+                  className="m-auto mb-5"
+               />
+               <p className="font-semibold text-lg mb-2">
+                  Your tasks List is Empty!
+               </p>
+               {!session ? (
+                  <p>
+                     <a
+                        href="/login"
+                        className="underline font-semibold text-slate-300"
+                     >
+                        Log in
+                     </a>{" "}
+                     to access all features or simply start adding new tasks.
+                  </p>
+               ) : (
+                  <p>You don't have any tasks right now. Try to add some.</p>
+               )}
+            </div>
+         )}
          {!isEditing && (
             <ul>
-               {todos.map((todo) => (
+               {todosList.map((todo) => (
                   <li
                      key={todo.id}
-                     className={`grid grid-cols-[auto_1fr_auto] items-center bg-slate-800 border border-slate-700 rounded-sm p-2 mb-2 ${
-                        todo.is_done && "opacity-50"
+                     className={`grid grid-cols-[auto_1fr_auto] gap-3 items-center bg-slate-800 border border-slate-700 rounded-md py-4 px-2 mb-3 ${
+                        todo.is_done && "opacity-40"
                      }`}
-                     draggable
                   >
-                     <input
-                        type="checkbox"
-                        id={todo.id}
-                        checked={todo.is_done}
-                        onChange={() => updateTodoIsDone(todo.id, todo.is_done)}
-                        className="mr-3 cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
-                     />
+                     {!session ? (
+                        <Tooltip
+                           text="You must be logged in to check a task."
+                           className="left-0"
+                        >
+                           <input
+                              type="checkbox"
+                              id={todo.id}
+                              className="opacity-30 pointer-events-none cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
+                           />
+                        </Tooltip>
+                     ) : (
+                        <input
+                           type="checkbox"
+                           id={todo.id}
+                           checked={todo.is_done}
+                           onChange={() =>
+                              updateTodoIsDone(todo.id, todo.is_done)
+                           }
+                           className="cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
+                        />
+                     )}
                      <label
                         htmlFor={todo.id}
-                        className={`${
-                           todo.is_done && "line-through"
-                        } break-all cursor-pointer`}
+                        className={`${todo.is_done && "line-through"} ${
+                           !session && "pointer-events-none"
+                        } font-semibold break-all cursor-pointer`}
                      >
                         {todo.title}
                      </label>
@@ -70,24 +160,24 @@ export function TodosList({ todos, session }: Props) {
                               <button
                                  className={`${
                                     !session && "opacity-30"
-                                 } w-7 h-7 bg-slate-700 rounded-[2px] flex items-center justify-center hover:bg-amber-200 hover:text-amber-600 active:opacity-100 transition`}
+                                 } w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-amber-200 hover:text-amber-600 active:opacity-100 transition`}
                               >
                                  <Pencil className="w-4 h-4" />
                               </button>
                            </Tooltip>
                         ) : (
                            <button
-                              className="w-7 h-7 bg-slate-700 rounded-[2px] flex items-center justify-center hover:opacity-80 active:opacity-100 transition"
-                              onClick={() => handleEdit(todo.id)}
+                              className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center hover:opacity-80 active:opacity-100 transition"
+                              onClick={() => handleShowEditTodo(todo.id)}
                            >
                               <Pencil className="w-4 h-4" />
                            </button>
                         )}
                         <button
-                           className="w-7 h-7 bg-slate-700 rounded-[2px] flex items-center justify-center hover:opacity-80 transition"
-                           onClick={() => deleteTodo(todo.id)}
+                           className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:opacity-80 transition"
+                           onClick={() => handleDelete(todo.id)}
                         >
-                           <X className="w-4 h-4" />
+                           <Trash2 className="w-4 h-4" />
                         </button>
                      </div>
                   </li>
@@ -100,14 +190,11 @@ export function TodosList({ todos, session }: Props) {
                className="flex items-center gap-5"
                onSubmit={(e) => {
                   e.preventDefault();
-                  updateTodoTitle(newTodo.id, newTodo.title).then(() => {
-                     router.refresh();
-                     toast.success("Todo updated");
-                     setIsEditing(false);
-                  });
+                  handleUpdateTodo(newTodo.id, newTodo.title);
                }}
             >
                <input
+                  id="editTodoInput"
                   type="text"
                   value={newTodo.title}
                   onChange={({ target }) =>
@@ -116,7 +203,8 @@ export function TodosList({ todos, session }: Props) {
                         title: target.value,
                      })
                   }
-                  className="w-full h-[45px] p-2 rounded-[2px] bg-slate-600 text-white outline-none focus:ring-1"
+                  className="w-full h-[65px] p-2 rounded-md bg-slate-600 text-white outline-none focus:ring-1"
+                  autoFocus
                />
 
                <button
