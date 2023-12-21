@@ -12,10 +12,10 @@ export default async function LoginPage() {
 
    return (
       <main className="w-[500px] my-10 px-3">
-         <h1 className="text-2xl font-semibold mb-10 text-center">Login</h1>
+         <h1 className="text-2xl font-semibold mb-10 text-center">Log in</h1>
          <Link
             href={"/"}
-            className="inline-block mb-5 underline text-white hover:text-slate-300 transition"
+            className="inline-block mb-5  text-white hover:text-slate-300 hover:underline transition"
          >
             &lt; Back
          </Link>

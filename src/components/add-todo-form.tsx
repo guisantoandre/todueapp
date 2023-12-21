@@ -6,7 +6,10 @@ import { v4 as randomID } from "uuid";
 import { Session } from "next-auth";
 
 import { createTodo } from "@/actions/actions";
-import { useTodos } from "@/contexts/todos-context";
+import { useTodos } from "@/contexts/localstorage-todos-context";
+import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+import { SelectedPick } from "@xata.io/client";
+import { TodosRecord } from "@/lib/xata";
 
 type Props = {
    session: Session | null;
@@ -14,17 +17,19 @@ type Props = {
 
 export function AddTodoForm({ session }: Props) {
    const [title, setTitle] = useState("");
-   const { todos, setTodos } = useTodos();
+   const { localStorageTodos, setLocalStorageTodos } = useTodos();
+   const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
+      useOrderedTodos();
 
-   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
+   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
 
       if (!session) {
-         const newList = [...todos];
+         const newList = [...localStorageTodos];
 
          newList.push({ id: randomID(), title: title, is_done: false });
 
-         setTodos(newList);
+         setLocalStorageTodos(newList);
 
          localStorage.setItem("todos", JSON.stringify(newList));
 
@@ -32,7 +37,20 @@ export function AddTodoForm({ session }: Props) {
       }
 
       if (session) {
-         createTodo(title);
+         const newTodo = await createTodo(title);
+         if (localStorage.getItem("orderedTodos")) {
+            const newOrderedList = [...localStorageOrderedTodos];
+
+            newOrderedList.push(newTodo);
+
+            setLocalStorageOrderedTodos(newOrderedList);
+
+            localStorage.setItem(
+               "orderedTodos",
+               JSON.stringify(newOrderedList)
+            );
+            console.log(newTodo);
+         }
          setTitle("");
       }
    }

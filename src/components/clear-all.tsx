@@ -1,7 +1,11 @@
 import { deleteAllTodos } from "@/actions/actions";
+import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
 import { toast } from "sonner";
 
 export function ClearAllBtn() {
+   const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
+      useOrderedTodos();
+
    async function handleDeleteAll() {
       try {
          const confirmed = window.confirm(
@@ -9,6 +13,12 @@ export function ClearAllBtn() {
          );
          if (confirmed) {
             await deleteAllTodos();
+
+            if (localStorage.getItem("orderedTodos")) {
+               localStorage.removeItem("orderedTodos");
+               setLocalStorageOrderedTodos([]);
+            }
+
             toast.success("All todos deleted");
          }
       } catch (error) {

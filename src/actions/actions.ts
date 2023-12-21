@@ -20,11 +20,12 @@ export async function createTodo(title: string) {
          .getFirst();
 
       try {
-         await xata.db.todos.create({
+         const newTodo = await xata.db.todos.create({
             user: user?.id,
             title,
          });
          revalidatePath("/");
+         return JSON.parse(JSON.stringify(newTodo));
       } catch (err) {
          console.log("[TODOS_CREATE_USERLOGGEDIN]", err);
       }

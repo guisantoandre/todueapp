@@ -9,17 +9,21 @@ export type Todo = {
 };
 
 type TodosContextType = {
-   todos: Todo[];
-   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+   localStorageTodos: Todo[];
+   setLocalStorageTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 };
 
 const TodosContext = createContext<TodosContextType>({} as TodosContextType);
 
-export const TodosProvider = ({ children }: React.PropsWithChildren) => {
-   const [todos, setTodos] = useState<Todo[]>([]);
+export const LocalStorageTodosProvider = ({
+   children,
+}: React.PropsWithChildren) => {
+   const [localStorageTodos, setLocalStorageTodos] = useState<Todo[]>([]);
 
    return (
-      <TodosContext.Provider value={{ todos, setTodos }}>
+      <TodosContext.Provider
+         value={{ localStorageTodos, setLocalStorageTodos }}
+      >
          {children}
       </TodosContext.Provider>
    );

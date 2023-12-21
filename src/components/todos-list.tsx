@@ -1,32 +1,40 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Session } from "next-auth";
+import { v4 as randomID } from "uuid";
+import { toast } from "sonner";
 
 import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
-import {
-   deleteTodo,
-   updateTodoIsDone,
-   updateTodoTitle,
-} from "@/actions/actions";
-import { Session } from "next-auth";
-import { Tooltip } from "./tooltip";
-import { useState } from "react";
-import { toast } from "sonner";
+import { deleteTodo, updateTodoTitle } from "@/actions/actions";
 import { useRouter } from "next/navigation";
-import { Todo, useTodos } from "@/contexts/todos-context";
+import { Todo, useTodos } from "@/contexts/localstorage-todos-context";
+import { NoTasksMessage } from "./no-tasks-message";
+import { InputCheckbox } from "./input-checkbox";
+import { EditButton } from "./edit-button";
+import { DeleteButton } from "./delete-button";
+import {
+   DragDropContext,
+   Draggable,
+   DropResult,
+   Droppable,
+} from "@hello-pangea/dnd";
+import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+import { GripVertical } from "lucide-react";
 
 type Props = {
-   todosList:
-      | SelectedPick<TodosRecord, ("title" | "id" | "is_done")[]>[]
-      | Todo[];
+   todosList: SelectedPick<TodosRecord, "*"[]>[] | Todo[];
    session: Session | null;
 };
 
 export function TodosList({ todosList, session }: Props) {
+   const [isMounted, setIsMounted] = useState(false);
    const [isEditing, setIsEditing] = useState(false);
    const [newTodo, setNewTodo] = useState({ id: "", title: "" });
-   const { todos, setTodos } = useTodos();
+   const { localStorageTodos, setLocalStorageTodos } = useTodos();
+   const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
+      useOrderedTodos();
    const router = useRouter();
 
    function handleShowEditTodo(id: string) {
@@ -45,6 +53,23 @@ export function TodosList({ todosList, session }: Props) {
       try {
          if (id && title) {
             await updateTodoTitle(newTodo.id, newTodo.title);
+
+            if (localStorage.getItem("orderedTodos")) {
+               const listOrderedTodos = [...localStorageOrderedTodos];
+
+               const index = listOrderedTodos.findIndex(
+                  (item) => item.id === id
+               );
+               listOrderedTodos[index].title = title;
+
+               localStorage.setItem(
+                  "orderedTodos",
+                  JSON.stringify(listOrderedTodos)
+               );
+
+               setLocalStorageOrderedTodos(listOrderedTodos);
+            }
+
             router.refresh();
             toast.success("Todo updated");
          } else {
@@ -64,9 +89,9 @@ export function TodosList({ todosList, session }: Props) {
          );
 
          if (id && confirmed) {
-            let listTodos = [...todos];
+            let listTodos = [...localStorageTodos];
             let filteredList = listTodos.filter((item) => item.id !== id);
-            setTodos(filteredList);
+            setLocalStorageTodos(filteredList);
             localStorage.setItem("todos", JSON.stringify(filteredList));
          }
       }
@@ -79,6 +104,19 @@ export function TodosList({ todosList, session }: Props) {
 
             if (id && confirmed) {
                await deleteTodo(id);
+
+               if (localStorage.getItem("orderedTodos")) {
+                  let listOrderedTodos = [...localStorageOrderedTodos];
+                  let filteredList = listOrderedTodos.filter(
+                     (item) => item.id !== id
+                  );
+                  setLocalStorageOrderedTodos(filteredList);
+                  localStorage.setItem(
+                     "orderedTodos",
+                     JSON.stringify(filteredList)
+                  );
+               }
+
                router.refresh();
                toast.success("Todo deleted");
             }
@@ -88,101 +126,129 @@ export function TodosList({ todosList, session }: Props) {
       }
    }
 
+   function reorderList<T>(list: T[], startIndex: number, endIndex: number) {
+      const result = Array.from(list);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+   }
+
+   function handleDragEnd(result: DropResult) {
+      if (!result.destination) return;
+
+      if (session) {
+         const newOrderList = reorderList(
+            (localStorageOrderedTodos.length > 0
+               ? localStorageOrderedTodos
+               : todosList) as SelectedPick<TodosRecord, "*"[]>[],
+            result.source.index,
+            result.destination.index
+         );
+
+         localStorage.setItem("orderedTodos", JSON.stringify(newOrderList));
+
+         setLocalStorageOrderedTodos(newOrderList);
+      }
+
+      if (!session) {
+         const newOrderList = reorderList(
+            (localStorageTodos.length > 0
+               ? localStorageTodos
+               : todosList) as Todo[],
+            result.source.index,
+            result.destination.index
+         );
+
+         setLocalStorageTodos(newOrderList);
+      }
+   }
+
+   useEffect(() => {
+      setIsMounted(true);
+   }, []);
+
+   if (!isMounted) {
+      return null;
+   }
+
    return (
-      <>
-         {todosList.length === 0 && todos.length === 0 && (
-            <div className="mt-20 text-center text-slate-400">
-               <img
-                  src="/add-tasks-image.svg"
-                  alt="Add Tasks Image"
-                  className="m-auto mb-5"
-               />
-               <p className="font-semibold text-lg mb-2">
-                  Your tasks List is Empty!
-               </p>
-               {!session ? (
-                  <p>
-                     <a
-                        href="/login"
-                        className="underline font-semibold text-slate-300"
-                     >
-                        Log in
-                     </a>{" "}
-                     to access all features or simply start adding new tasks.
-                  </p>
-               ) : (
-                  <p>You don't have any tasks right now. Try to add some.</p>
-               )}
-            </div>
+      <div>
+         {todosList.length === 0 && localStorageTodos.length === 0 && (
+            <NoTasksMessage session={session} />
          )}
          {!isEditing && (
-            <ul>
-               {todosList.map((todo) => (
-                  <li
-                     key={todo.id}
-                     className={`grid grid-cols-[auto_1fr_auto] gap-3 items-center bg-slate-800 border border-slate-700 rounded-md py-4 px-2 mb-3 ${
-                        todo.is_done && "opacity-40"
-                     }`}
-                  >
-                     {!session ? (
-                        <Tooltip
-                           text="You must be logged in to check a task."
-                           className="left-0"
-                        >
-                           <input
-                              type="checkbox"
-                              id={todo.id}
-                              className="opacity-30 pointer-events-none cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
-                           />
-                        </Tooltip>
-                     ) : (
-                        <input
-                           type="checkbox"
-                           id={todo.id}
-                           checked={todo.is_done}
-                           onChange={() =>
-                              updateTodoIsDone(todo.id, todo.is_done)
-                           }
-                           className="cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
-                        />
-                     )}
-                     <label
-                        htmlFor={todo.id}
-                        className={`${todo.is_done && "line-through"} ${
-                           !session && "pointer-events-none"
-                        } font-semibold break-all cursor-pointer`}
-                     >
-                        {todo.title}
-                     </label>
-                     <div className="flex items-center gap-2">
-                        {!session ? (
-                           <Tooltip text="You must be logged in to edit.">
-                              <button
-                                 className={`${
-                                    !session && "opacity-30"
-                                 } w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-amber-200 hover:text-amber-600 active:opacity-100 transition`}
-                              >
-                                 <Pencil className="w-4 h-4" />
-                              </button>
-                           </Tooltip>
-                        ) : (
-                           <button
-                              className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center hover:opacity-80 active:opacity-100 transition"
-                              onClick={() => handleShowEditTodo(todo.id)}
+            <DragDropContext onDragEnd={handleDragEnd}>
+               <Droppable droppableId="todotasks" type="list">
+                  {(provided) => (
+                     <ul ref={provided.innerRef} {...provided.droppableProps}>
+                        {(localStorageOrderedTodos.length > 0 && session
+                           ? localStorageOrderedTodos
+                           : todosList
+                        ).map((todo, index) => (
+                           <Draggable
+                              key={todo.id}
+                              index={index}
+                              draggableId={todo.id}
                            >
-                              <Pencil className="w-4 h-4" />
-                           </button>
-                        )}
-                        <button
-                           className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:opacity-80 transition"
-                           onClick={() => handleDelete(todo.id)}
-                        >
-                           <Trash2 className="w-4 h-4" />
-                        </button>
-                     </div>
-                  </li>
-               ))}
-            </ul>
+                              {(provided) => (
+                                 <li
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className={`group grid grid-cols-[auto_1fr_auto] gap-3 items-center bg-slate-800 border border-slate-700 rounded-md py-4 px-2 mb-3 ${
+                                       todo.is_done && "opacity-40"
+                                    }`}
+                                 >
+                                    {session ? (
+                                       <InputCheckbox
+                                          todo={todo}
+                                          isAuthenticated={true}
+                                       />
+                                    ) : (
+                                       <InputCheckbox
+                                          todo={todo}
+                                          isAuthenticated={false}
+                                       />
+                                    )}
+                                    <label
+                                       htmlFor={todo.id}
+                                       className={`${
+                                          todo.is_done && "line-through"
+                                       } ${
+                                          !session && "pointer-events-none"
+                                       } font-semibold break-all cursor-pointer`}
+                                    >
+                                       {todo.title}
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                       <GripVertical className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:text-gray-500" />
+                                       {session ? (
+                                          <EditButton
+                                             isAuthenticated={true}
+                                             todo={todo}
+                                             onShowEditTodo={handleShowEditTodo}
+                                          />
+                                       ) : (
+                                          <EditButton
+                                             isAuthenticated={false}
+                                             todo={todo}
+                                          />
+                                       )}
+                                       <DeleteButton
+                                          todo={todo}
+                                          onDelete={handleDelete}
+                                       />
+                                    </div>
+                                 </li>
+                              )}
+                           </Draggable>
+                        ))}
+
+                        {provided.placeholder}
+                     </ul>
+                  )}
+               </Droppable>
+            </DragDropContext>
          )}
 
          {isEditing && (
@@ -222,6 +288,6 @@ export function TodosList({ todosList, session }: Props) {
                </button>
             </form>
          )}
-      </>
+      </div>
    );
 }

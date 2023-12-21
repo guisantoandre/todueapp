@@ -1,8 +1,9 @@
-import { TodosProvider } from "@/contexts/todos-context";
+import { LocalStorageTodosProvider } from "@/contexts/localstorage-todos-context";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Blinker } from "next/font/google";
 import { Toaster } from "sonner";
+import { LocalStorageOrderedTodosProvider } from "@/contexts/localstorage-ordered-todos-context";
 
 const blinker = Blinker({
    subsets: ["latin"],
@@ -27,7 +28,11 @@ export default function RootLayout({
             className={`${blinker.variable} flex justify-center bg-slate-900 text-white`}
          >
             <Toaster richColors closeButton />
-            <TodosProvider>{children}</TodosProvider>
+            <LocalStorageTodosProvider>
+               <LocalStorageOrderedTodosProvider>
+                  {children}
+               </LocalStorageOrderedTodosProvider>
+            </LocalStorageTodosProvider>
          </body>
       </html>
    );

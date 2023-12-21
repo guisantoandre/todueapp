@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Session } from "next-auth";
 import Link from "next/link";
 
@@ -9,17 +9,17 @@ import { AddTodoForm } from "./add-todo-form";
 import { TodosList } from "./todos-list";
 import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
-import { useTodos } from "@/contexts/todos-context";
+import { useTodos } from "@/contexts/localstorage-todos-context";
 import { CompletedTasks } from "./completed-tasks";
 import { ClearAllBtn } from "./clear-all";
 
 type Props = {
    session: Session | null;
-   allTodos: SelectedPick<TodosRecord, ("title" | "id" | "is_done")[]>[] | [];
+   allTodos: SelectedPick<TodosRecord, "*"[]>[] | [];
 };
 
 export function HomeComponent({ session, allTodos }: Props) {
-   const { todos, setTodos } = useTodos();
+   const { localStorageTodos, setLocalStorageTodos } = useTodos();
 
    useEffect(() => {
       if (!session) {
@@ -28,7 +28,7 @@ export function HomeComponent({ session, allTodos }: Props) {
          }
 
          if (localStorage.getItem("todos") !== null) {
-            setTodos(JSON.parse(localStorage.getItem("todos")!));
+            setLocalStorageTodos(JSON.parse(localStorage.getItem("todos")!));
          }
       }
    }, []);
@@ -41,9 +41,9 @@ export function HomeComponent({ session, allTodos }: Props) {
             {!session && (
                <Link
                   href={"/login"}
-                  className="underline rounded transition text-white hover:text-slate-300"
+                  className="rounded transition text-white font-semibold hover:text-slate-300 hover:underline"
                >
-                  Login
+                  Log in
                </Link>
             )}
          </div>
@@ -54,7 +54,10 @@ export function HomeComponent({ session, allTodos }: Props) {
                {allTodos.length > 0 && <ClearAllBtn />}
             </div>
          )}
-         <TodosList todosList={!session ? todos : allTodos} session={session} />
+         <TodosList
+            todosList={!session ? localStorageTodos : allTodos}
+            session={session}
+         />
       </main>
    );
 }
