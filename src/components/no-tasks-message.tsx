@@ -2,7 +2,7 @@ import { Session } from "next-auth";
 
 export function NoTasksMessage({ session }: { session: Session | null }) {
    return (
-      <div className="mt-20 text-center text-neutral-400">
+      <div className="mt-16 text-center text-neutral-400">
          <img
             src="/add-tasks-image.svg"
             alt="Add Tasks Image"

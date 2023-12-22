@@ -32,7 +32,7 @@ export function AddTodoForm({ session }: Props) {
       if (!session && title !== "") {
          const newList = [...localStorageTodos];
 
-         newList.push({ id: randomID(), title: title, is_done: false });
+         newList.push({ id: randomID(), title: title.trim(), is_done: false });
 
          setLocalStorageTodos(newList);
 
@@ -42,7 +42,7 @@ export function AddTodoForm({ session }: Props) {
       }
 
       if (session && title !== "") {
-         const newTodo = await createTodo(title);
+         const newTodo = await createTodo(title.trim());
 
          if (localStorage.getItem(`orderedTodos_${userEmail}`)) {
             const newOrderedList = [...localStorageOrderedTodos];

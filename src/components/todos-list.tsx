@@ -52,7 +52,7 @@ export function TodosList({ todosList, session }: Props) {
    async function handleUpdateTodo(id: string, title: string) {
       try {
          if (id && title) {
-            await updateTodoTitle(newTodo.id, newTodo.title);
+            await updateTodoTitle(newTodo.id, newTodo.title.trim());
 
             if (localStorage.getItem(`orderedTodos_${userName}`)) {
                const listOrderedTodos = [...localStorageOrderedTodos];
@@ -60,7 +60,7 @@ export function TodosList({ todosList, session }: Props) {
                const index = listOrderedTodos.findIndex(
                   (item) => item.id === id
                );
-               listOrderedTodos[index].title = title;
+               listOrderedTodos[index].title = title.trim();
 
                localStorage.setItem(
                   `orderedTodos_${userName}`,

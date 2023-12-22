@@ -50,7 +50,7 @@ export function HomeComponent({ session, allTodos }: Props) {
          <AddTodoForm session={session} />
          {session && (
             <div className="w-full flex items-center justify-between mb-2">
-               <CompletedTasks tasks={allTodos} />
+               {allTodos.length > 0 && <CompletedTasks tasks={allTodos} />}
                {allTodos.length > 0 && <ClearAllBtn session={session} />}
             </div>
          )}
