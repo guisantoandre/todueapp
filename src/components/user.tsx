@@ -20,7 +20,7 @@ export function User({ user }: Props) {
          </div>
          <button
             onClick={() => signOut()}
-            className="underline text-slate-400 transition hover:text-slate-50"
+            className="underline text-neutral-400 transition hover:text-neutral-50"
          >
             Logout
          </button>

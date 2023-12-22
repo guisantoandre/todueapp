@@ -8,8 +8,6 @@ import { Session } from "next-auth";
 import { createTodo } from "@/actions/actions";
 import { useTodos } from "@/contexts/localstorage-todos-context";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
-import { SelectedPick } from "@xata.io/client";
-import { TodosRecord } from "@/lib/xata";
 
 type Props = {
    session: Session | null;
@@ -20,6 +18,7 @@ export function AddTodoForm({ session }: Props) {
    const { localStorageTodos, setLocalStorageTodos } = useTodos();
    const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
       useOrderedTodos();
+   const userEmail = session?.user?.email?.split("@")[0];
 
    async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
@@ -38,7 +37,7 @@ export function AddTodoForm({ session }: Props) {
 
       if (session) {
          const newTodo = await createTodo(title);
-         if (localStorage.getItem("orderedTodos")) {
+         if (localStorage.getItem(`orderedTodos_${userEmail}`)) {
             const newOrderedList = [...localStorageOrderedTodos];
 
             newOrderedList.push(newTodo);
@@ -46,7 +45,7 @@ export function AddTodoForm({ session }: Props) {
             setLocalStorageOrderedTodos(newOrderedList);
 
             localStorage.setItem(
-               "orderedTodos",
+               `orderedTodos_${userEmail}`,
                JSON.stringify(newOrderedList)
             );
             console.log(newTodo);
@@ -56,7 +55,7 @@ export function AddTodoForm({ session }: Props) {
    }
 
    return (
-      <div className="w-full mb-5">
+      <div className="w-full my-5 px-3 sm-custom:w-[580px] fixed bottom-0 left-1/2 transform -translate-x-1/2 md:static md:w-full md:transform-none md:px-0 md:mb-5">
          <form
             onSubmit={(e) => handleCreate(e)}
             className="flex items-center gap-x-3"
@@ -67,12 +66,12 @@ export function AddTodoForm({ session }: Props) {
                onChange={({ target }) => setTitle(target.value)}
                value={title}
                placeholder="What needs to be done?"
-               className="w-full h-[50px] p-2 rounded-md bg-slate-600 placeholder:text-slate-300 outline-none focus:ring-1"
+               className="w-full h-[50px] p-2 rounded-md bg-bg-add-form placeholder:text-neutral-400 outline-none focus:ring-1 focus:bg-bg-add-form/60"
                autoFocus
             />
             <button
                type="submit"
-               className="rounded-md bg-blue-600 h-[50px] py-2 px-4 font-bold hover:opacity-90 active:opacity-100 transition"
+               className="rounded-md bg-bg-btn text-black h-[50px] py-2 px-4 font-bold hover:opacity-90 active:opacity-100 transition"
             >
                <Plus className="w-5 h-5" />
             </button>

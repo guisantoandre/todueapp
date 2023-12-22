@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Session } from "next-auth";
-import { v4 as randomID } from "uuid";
 import { toast } from "sonner";
 
 import { SelectedPick } from "@xata.io/client";
@@ -36,6 +35,7 @@ export function TodosList({ todosList, session }: Props) {
    const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
       useOrderedTodos();
    const router = useRouter();
+   const userName = session?.user?.email?.split("@")[0];
 
    function handleShowEditTodo(id: string) {
       const filteredTodo = todosList.find((todo) => todo.id === id);
@@ -54,7 +54,7 @@ export function TodosList({ todosList, session }: Props) {
          if (id && title) {
             await updateTodoTitle(newTodo.id, newTodo.title);
 
-            if (localStorage.getItem("orderedTodos")) {
+            if (localStorage.getItem(`orderedTodos_${userName}`)) {
                const listOrderedTodos = [...localStorageOrderedTodos];
 
                const index = listOrderedTodos.findIndex(
@@ -63,7 +63,7 @@ export function TodosList({ todosList, session }: Props) {
                listOrderedTodos[index].title = title;
 
                localStorage.setItem(
-                  "orderedTodos",
+                  `orderedTodos_${userName}`,
                   JSON.stringify(listOrderedTodos)
                );
 
@@ -105,14 +105,14 @@ export function TodosList({ todosList, session }: Props) {
             if (id && confirmed) {
                await deleteTodo(id);
 
-               if (localStorage.getItem("orderedTodos")) {
+               if (localStorage.getItem(`orderedTodos_${userName}`)) {
                   let listOrderedTodos = [...localStorageOrderedTodos];
                   let filteredList = listOrderedTodos.filter(
                      (item) => item.id !== id
                   );
                   setLocalStorageOrderedTodos(filteredList);
                   localStorage.setItem(
-                     "orderedTodos",
+                     `orderedTodos_${userName}`,
                      JSON.stringify(filteredList)
                   );
                }
@@ -145,7 +145,10 @@ export function TodosList({ todosList, session }: Props) {
             result.destination.index
          );
 
-         localStorage.setItem("orderedTodos", JSON.stringify(newOrderList));
+         localStorage.setItem(
+            `orderedTodos_${userName}`,
+            JSON.stringify(newOrderList)
+         );
 
          setLocalStorageOrderedTodos(newOrderList);
       }
@@ -195,14 +198,15 @@ export function TodosList({ todosList, session }: Props) {
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className={`group grid grid-cols-[auto_1fr_auto] gap-3 items-center bg-slate-800 border border-slate-700 rounded-md py-4 px-2 mb-3 ${
-                                       todo.is_done && "opacity-40"
+                                    className={`group grid grid-cols-[auto_1fr_auto] gap-3 items-center bg-bg-todos border border-neutral-900 rounded-md py-4 px-2 mb-3 ${
+                                       todo.is_done && "opacity-50"
                                     }`}
                                  >
                                     {session ? (
                                        <InputCheckbox
                                           todo={todo}
                                           isAuthenticated={true}
+                                          session={session}
                                        />
                                     ) : (
                                        <InputCheckbox
@@ -221,7 +225,7 @@ export function TodosList({ todosList, session }: Props) {
                                        {todo.title}
                                     </label>
                                     <div className="flex items-center gap-2">
-                                       <GripVertical className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:text-gray-500" />
+                                       <GripVertical className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:text-neutral-500" />
                                        {session ? (
                                           <EditButton
                                              isAuthenticated={true}
@@ -269,7 +273,8 @@ export function TodosList({ todosList, session }: Props) {
                         title: target.value,
                      })
                   }
-                  className="w-full h-[65px] p-2 rounded-md bg-slate-600 text-white outline-none focus:ring-1"
+                  className="w-full h-[65px] p-2 rounded-md bg-bg-add-form placeholder:text-neutral-400
+                  focus:bg-bg-add-form/60 text-white outline-none focus:ring-1"
                   autoFocus
                />
 

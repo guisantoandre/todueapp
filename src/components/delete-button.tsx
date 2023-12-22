@@ -12,7 +12,7 @@ type Props = React.ComponentProps<"button"> & {
 export function DeleteButton({ todo, onDelete }: Props) {
    return (
       <button
-         className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:opacity-80 transition"
+         className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:opacity-70 active:opacity-100 transition"
          onClick={() => onDelete(todo.id)}
       >
          <Trash2 className="w-4 h-4" />

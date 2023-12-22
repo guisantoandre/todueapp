@@ -8,28 +8,34 @@ import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { updateTodoIsDone } from "@/actions/actions";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+import { Session } from "next-auth";
 
 type Props = React.ComponentProps<"input"> & {
    isAuthenticated: boolean;
    todo: Todo | SelectedPick<TodosRecord, "*"[]>;
+   session?: Session | null;
 };
 
-export function InputCheckbox({ isAuthenticated, todo }: Props) {
+export function InputCheckbox({ isAuthenticated, todo, session }: Props) {
    const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
       useOrderedTodos();
+   const userName = session?.user?.email?.split("@")[0];
 
    function updateTodoIsDoneAtLocalStorageOrderedTodos(
       id: string,
       is_done: boolean
    ) {
-      if (localStorage.getItem("orderedTodos")) {
+      if (localStorage.getItem(`orderedTodos_${userName}`)) {
          const listOrderedTodos = [...localStorageOrderedTodos];
          const index = listOrderedTodos.findIndex(
             (item) => item.id === todo.id
          );
          listOrderedTodos[index].is_done = !listOrderedTodos[index].is_done;
 
-         localStorage.setItem("orderedTodos", JSON.stringify(listOrderedTodos));
+         localStorage.setItem(
+            `orderedTodos_${userName}`,
+            JSON.stringify(listOrderedTodos)
+         );
 
          setLocalStorageOrderedTodos(listOrderedTodos);
       }
@@ -50,7 +56,7 @@ export function InputCheckbox({ isAuthenticated, todo }: Props) {
                      );
                   })
                }
-               className="cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
+               className="appearance-none cursor-pointer bg-slate-700 w-4 h-4 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-dark focus:ring-bg-btn checked:bg-bg-btn checked:text-bg-btn"
             />
          ) : (
             <Tooltip
@@ -60,7 +66,7 @@ export function InputCheckbox({ isAuthenticated, todo }: Props) {
                <input
                   type="checkbox"
                   id={todo.id}
-                  className="opacity-30 pointer-events-none cursor-pointer w-4 h-4 bg-slate-600 rounded focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
+                  className="opacity-30 pointer-events-none cursor-pointer w-4 h-4 bg-slate-600 rounded"
                />
             </Tooltip>
          )}

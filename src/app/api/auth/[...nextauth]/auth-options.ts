@@ -5,7 +5,7 @@ import { getXataClient } from "@/lib/xata";
 const xata = getXataClient();
 
 export const authOptions: NextAuthOptions = {
-   secret: process.env.NEXTAUTH_SECRET,
+   secret: process.env.NEXTAUTH_SECRET as string,
    providers: [
       GoogleProvider({
          clientId: process.env.GOOGLE_ID as string,

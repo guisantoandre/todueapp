@@ -2,7 +2,7 @@ import { Session } from "next-auth";
 
 export function NoTasksMessage({ session }: { session: Session | null }) {
    return (
-      <div className="mt-20 text-center text-slate-400">
+      <div className="mt-20 text-center text-neutral-400">
          <img
             src="/add-tasks-image.svg"
             alt="Add Tasks Image"
@@ -13,7 +13,7 @@ export function NoTasksMessage({ session }: { session: Session | null }) {
             <p>
                <a
                   href="/login"
-                  className="font-semibold text-slate-300 hover:underline hover:text-slate-50 transition"
+                  className="font-semibold text-neutral-300 hover:underline hover:text-slate-50 transition"
                >
                   Log in
                </a>{" "}

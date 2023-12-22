@@ -35,13 +35,13 @@ export function HomeComponent({ session, allTodos }: Props) {
 
    return (
       <main className="w-[580px] my-10 px-3">
-         <div className="flex flex-col gap-3 items-center md:flex-row md:justify-between mb-10">
-            <h1 className="text-2xl font-semibold text-center">ToDue</h1>
+         <div className="flex flex-col gap-y-6 items-center md:flex-row md:justify-between mb-10">
+            <img src="/todue-logo.svg" alt="ToDue Logo" className="w-24" />
             {session && <User user={session} />}
             {!session && (
                <Link
                   href={"/login"}
-                  className="rounded transition text-white font-semibold hover:text-slate-300 hover:underline"
+                  className="rounded text-black py-2 px-4 bg-bg-btn font-semibold hover:opacity-80 transition"
                >
                   Log in
                </Link>
@@ -51,7 +51,7 @@ export function HomeComponent({ session, allTodos }: Props) {
          {session && (
             <div className="w-full flex items-center justify-between mb-2">
                <CompletedTasks tasks={allTodos} />
-               {allTodos.length > 0 && <ClearAllBtn />}
+               {allTodos.length > 0 && <ClearAllBtn session={session} />}
             </div>
          )}
          <TodosList

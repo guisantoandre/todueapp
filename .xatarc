@@ -1,5 +1,5 @@
 {
-  "databaseURL": "https://Guilherme-s-workspace-fleugd.us-east-1.xata.sh/db/todo-app",
+  "databaseURL": "https://Guilherme-s-workspace-fleugd.us-east-1.xata.sh/db/todue-app",
   "codegen": {
     "output": "src/lib/xata.ts"
   }

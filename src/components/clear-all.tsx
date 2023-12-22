@@ -1,10 +1,15 @@
-import { deleteAllTodos } from "@/actions/actions";
-import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+"use client";
+
+import { Session } from "next-auth";
 import { toast } from "sonner";
 
-export function ClearAllBtn() {
+import { deleteAllTodos } from "@/actions/actions";
+import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+
+export function ClearAllBtn({ session }: { session: Session | null }) {
    const { localStorageOrderedTodos, setLocalStorageOrderedTodos } =
       useOrderedTodos();
+   const userName = session?.user?.email?.split("@")[0];
 
    async function handleDeleteAll() {
       try {
@@ -14,8 +19,8 @@ export function ClearAllBtn() {
          if (confirmed) {
             await deleteAllTodos();
 
-            if (localStorage.getItem("orderedTodos")) {
-               localStorage.removeItem("orderedTodos");
+            if (localStorage.getItem(`orderedTodos_${userName}`)) {
+               localStorage.removeItem(`orderedTodos_${userName}`);
                setLocalStorageOrderedTodos([]);
             }
 
@@ -28,7 +33,7 @@ export function ClearAllBtn() {
 
    return (
       <button
-         className="underline text-slate-400 hover:text-slate-50 transition"
+         className="underline text-neutral-400 hover:text-neutral-50 transition"
          onClick={() => handleDeleteAll()}
       >
          Clear All

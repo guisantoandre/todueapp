@@ -7,7 +7,7 @@ type Props = {
 
 export function CompletedTasks({ tasks }: Props) {
    return (
-      <span className="text-sm text-slate-400 block">{`(${
+      <span className="text-sm text-neutral-400 block">{`(${
          tasks.filter((task) => task.is_done).length
       }/${tasks.length}) Completed Tasks`}</span>
    );

@@ -43,7 +43,7 @@ const DatabaseClient = buildClient();
 
 const defaultOptions = {
   databaseURL:
-    "https://Guilherme-s-workspace-fleugd.us-east-1.xata.sh/db/todo-app",
+    "https://Guilherme-s-workspace-fleugd.us-east-1.xata.sh/db/todue-app",
 };
 
 export class XataClient extends DatabaseClient<DatabaseSchema> {

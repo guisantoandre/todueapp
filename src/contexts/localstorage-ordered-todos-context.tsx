@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState } from "react";
 
 import { TodosRecord } from "@/lib/xata";
 import { SelectedPick } from "@xata.io/client";
+import { Session } from "next-auth";
 
 export type Todo = {
    id: string;
@@ -22,10 +23,16 @@ const TodosContext = createContext<TodosContextType>({} as TodosContextType);
 
 export const LocalStorageOrderedTodosProvider = ({
    children,
-}: React.PropsWithChildren) => {
+   session,
+}: {
+   children: React.ReactNode;
+   session: Session | null;
+}) => {
+   let userName = session?.user?.email?.split("@")[0];
    const [localStorageOrderedTodos, setLocalStorageOrderedTodos] = useState(
-      typeof window !== "undefined" && localStorage.getItem("orderedTodos")
-         ? JSON.parse(localStorage.getItem("orderedTodos")!)
+      typeof window !== "undefined" &&
+         localStorage.getItem(`orderedTodos_${userName}`)
+         ? JSON.parse(localStorage.getItem(`orderedTodos_${userName}`)!)
          : []
    );
 
