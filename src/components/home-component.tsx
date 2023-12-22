@@ -34,7 +34,7 @@ export function HomeComponent({ session, allTodos }: Props) {
    }, []);
 
    return (
-      <main className="w-[580px] my-10 px-3">
+      <main className="w-[580px] mt-10 mb-28 px-3">
          <div className="flex flex-col gap-y-6 items-center md:flex-row md:justify-between mb-10">
             <img src="/todue-logo.svg" alt="ToDue Logo" className="w-24" />
             {session && <User user={session} />}

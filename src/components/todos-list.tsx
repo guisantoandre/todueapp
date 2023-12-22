@@ -73,7 +73,7 @@ export function TodosList({ todosList, session }: Props) {
             router.refresh();
             toast.success("Todo updated");
          } else {
-            toast.info("Title is required");
+            toast.info("Task title is required");
          }
       } catch (error) {
          toast.error("Something went wrong, try again");

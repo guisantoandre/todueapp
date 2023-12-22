@@ -8,6 +8,7 @@ import { Session } from "next-auth";
 import { createTodo } from "@/actions/actions";
 import { useTodos } from "@/contexts/localstorage-todos-context";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
+import { toast } from "sonner";
 
 type Props = {
    session: Session | null;
@@ -23,7 +24,12 @@ export function AddTodoForm({ session }: Props) {
    async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
 
-      if (!session) {
+      if (title === "") {
+         toast.info("Task title is required");
+         return;
+      }
+
+      if (!session && title !== "") {
          const newList = [...localStorageTodos];
 
          newList.push({ id: randomID(), title: title, is_done: false });
@@ -35,8 +41,9 @@ export function AddTodoForm({ session }: Props) {
          setTitle("");
       }
 
-      if (session) {
+      if (session && title !== "") {
          const newTodo = await createTodo(title);
+
          if (localStorage.getItem(`orderedTodos_${userEmail}`)) {
             const newOrderedList = [...localStorageOrderedTodos];
 
@@ -55,10 +62,10 @@ export function AddTodoForm({ session }: Props) {
    }
 
    return (
-      <div className="w-full my-5 px-3 sm-custom:w-[580px] fixed bottom-0 left-1/2 transform -translate-x-1/2 md:static md:w-full md:transform-none md:px-0 md:mb-5">
+      <div className="z-20 fixed bottom-0 left-0 w-full py-6 bg-bg-dark/60 backdrop-blur-sm md:static md:py-0 md:bg-none">
          <form
             onSubmit={(e) => handleCreate(e)}
-            className="flex items-center gap-x-3"
+            className="flex items-center gap-x-3 px-3 sm-custom:w-[580px] mx-auto md:static md:w-full md:px-0 md:mb-5"
          >
             <input
                id="addTodoInput"
@@ -66,7 +73,7 @@ export function AddTodoForm({ session }: Props) {
                onChange={({ target }) => setTitle(target.value)}
                value={title}
                placeholder="What needs to be done?"
-               className="w-full h-[50px] p-2 rounded-md bg-bg-add-form placeholder:text-neutral-400 outline-none focus:ring-1 focus:bg-bg-add-form/60"
+               className="w-full h-[50px] p-2 rounded-md bg-bg-add-form placeholder:text-neutral-400 outline-none focus:ring-1"
                autoFocus
             />
             <button
