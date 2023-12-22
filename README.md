@@ -2,4 +2,4 @@
 
 - Made with NextJS, Typescript and Xata Serverless database
 
-> **[Todoapp](https://todueapp.vercel.app/)** <br>
+> **[Link to access](https://todueapp.vercel.app/)** <br>
