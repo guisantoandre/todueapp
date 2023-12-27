@@ -7,7 +7,6 @@ import Link from "next/link";
 import { User } from "./user";
 import { AddTodoForm } from "./add-todo-form";
 import { TodosList } from "./todos-list";
-import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { useTodos } from "@/contexts/localstorage-todos-context";
 import { CompletedTasks } from "./completed-tasks";
@@ -15,7 +14,7 @@ import { ClearAllBtn } from "./clear-all";
 
 type Props = {
    session: Session | null;
-   allTodos: SelectedPick<TodosRecord, "*"[]>[] | [];
+   allTodos: TodosRecord[] | [];
 };
 
 export function HomeComponent({ session, allTodos }: Props) {

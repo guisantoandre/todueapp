@@ -1,10 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
+import { Session } from "next-auth";
 
 import { TodosRecord } from "@/lib/xata";
-import { SelectedPick } from "@xata.io/client";
-import { Session } from "next-auth";
 
 export type Todo = {
    id: string;
@@ -13,9 +12,9 @@ export type Todo = {
 };
 
 type TodosContextType = {
-   localStorageOrderedTodos: SelectedPick<TodosRecord, "*"[]>[];
+   localStorageOrderedTodos: TodosRecord[];
    setLocalStorageOrderedTodos: React.Dispatch<
-      React.SetStateAction<SelectedPick<TodosRecord, "*"[]>>[]
+      React.SetStateAction<TodosRecord>[]
    >;
 };
 

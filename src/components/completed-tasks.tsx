@@ -1,8 +1,7 @@
 import { TodosRecord } from "@/lib/xata";
-import { SelectedPick } from "@xata.io/client";
 
 type Props = {
-   tasks: SelectedPick<TodosRecord, "*"[]>[];
+   tasks: TodosRecord[];
 };
 
 export function CompletedTasks({ tasks }: Props) {

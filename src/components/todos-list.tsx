@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { Session } from "next-auth";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { deleteTodo, updateTodoTitle } from "@/actions/actions";
-import { useRouter } from "next/navigation";
 import { Todo, useTodos } from "@/contexts/localstorage-todos-context";
 import { NoTasksMessage } from "./no-tasks-message";
 import { InputCheckbox } from "./input-checkbox";
@@ -23,7 +22,7 @@ import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
 import { GripVertical } from "lucide-react";
 
 type Props = {
-   todosList: SelectedPick<TodosRecord, "*"[]>[] | Todo[];
+   todosList: TodosRecord[] | Todo[];
    session: Session | null;
 };
 
@@ -140,7 +139,7 @@ export function TodosList({ todosList, session }: Props) {
          const newOrderList = reorderList(
             (localStorageOrderedTodos.length > 0
                ? localStorageOrderedTodos
-               : todosList) as SelectedPick<TodosRecord, "*"[]>[],
+               : todosList) as TodosRecord[],
             result.source.index,
             result.destination.index
          );

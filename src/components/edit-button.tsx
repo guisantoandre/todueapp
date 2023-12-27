@@ -2,12 +2,11 @@ import { Pencil } from "lucide-react";
 
 import { Tooltip } from "./tooltip";
 import { Todo } from "@/contexts/localstorage-todos-context";
-import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 
 type Props = React.ComponentProps<"input"> & {
    isAuthenticated: boolean;
-   todo: Todo | SelectedPick<TodosRecord, "*"[]>;
+   todo: Todo | TodosRecord;
    onShowEditTodo?: (id: string) => void;
 };
 

@@ -1,18 +1,17 @@
 "use client";
 
 import React from "react";
+import { Session } from "next-auth";
 
 import { Tooltip } from "./tooltip";
 import { Todo } from "@/contexts/localstorage-todos-context";
-import { SelectedPick } from "@xata.io/client";
 import { TodosRecord } from "@/lib/xata";
 import { updateTodoIsDone } from "@/actions/actions";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
-import { Session } from "next-auth";
 
 type Props = React.ComponentProps<"input"> & {
    isAuthenticated: boolean;
-   todo: Todo | SelectedPick<TodosRecord, "*"[]>;
+   todo: Todo | TodosRecord;
    session?: Session | null;
 };
 

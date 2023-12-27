@@ -1,11 +1,11 @@
+import React from "react";
+import { Trash2 } from "lucide-react";
+
 import { Todo } from "@/contexts/localstorage-todos-context";
 import { TodosRecord } from "@/lib/xata";
-import { SelectedPick } from "@xata.io/client";
-import { Trash2 } from "lucide-react";
-import React from "react";
 
 type Props = React.ComponentProps<"button"> & {
-   todo: Todo | SelectedPick<TodosRecord, "*"[]>;
+   todo: Todo | TodosRecord;
    onDelete: (id: string) => void;
 };
 
