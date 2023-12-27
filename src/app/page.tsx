@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 
-import { getAllTodos } from "@/actions/actions";
+import { getAllTodos } from "@/app/actions";
 import { HomeComponent } from "@/components/home-component";
 
 export default async function Home() {

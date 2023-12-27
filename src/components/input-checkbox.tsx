@@ -6,7 +6,7 @@ import { Session } from "next-auth";
 import { Tooltip } from "./tooltip";
 import { Todo } from "@/contexts/localstorage-todos-context";
 import { TodosRecord } from "@/lib/xata";
-import { updateTodoIsDone } from "@/actions/actions";
+import { updateTodoIsDone } from "@/app/actions";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
 
 type Props = React.ComponentProps<"input"> & {

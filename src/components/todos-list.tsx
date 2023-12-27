@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { TodosRecord } from "@/lib/xata";
-import { deleteTodo, updateTodoTitle } from "@/actions/actions";
+import { deleteTodo, updateTodoTitle } from "@/app/actions";
 import { Todo, useTodos } from "@/contexts/localstorage-todos-context";
 import { NoTasksMessage } from "./no-tasks-message";
 import { InputCheckbox } from "./input-checkbox";

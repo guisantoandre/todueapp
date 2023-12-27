@@ -3,7 +3,7 @@
 import { Session } from "next-auth";
 import { toast } from "sonner";
 
-import { deleteAllTodos } from "@/actions/actions";
+import { deleteAllTodos } from "@/app/actions";
 import { useOrderedTodos } from "@/contexts/localstorage-ordered-todos-context";
 
 export function ClearAllBtn({ session }: { session: Session | null }) {
