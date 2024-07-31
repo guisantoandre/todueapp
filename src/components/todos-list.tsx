@@ -50,8 +50,15 @@ export function TodosList({ todosList, session }: Props) {
 
    async function handleUpdateTodo(id: string, title: string) {
       try {
+         const trimmedTitle = title.trim();
+
+         if (trimmedTitle === "" || trimmedTitle === null) {
+            toast.info("Task title is required");
+            return;
+         }
+
          if (id && title) {
-            await updateTodoTitle(newTodo.id, newTodo.title.trim());
+            await updateTodoTitle(id, trimmedTitle);
 
             if (localStorage.getItem(`orderedTodos_${userName}`)) {
                const listOrderedTodos = [...localStorageOrderedTodos];
@@ -59,7 +66,7 @@ export function TodosList({ todosList, session }: Props) {
                const index = listOrderedTodos.findIndex(
                   (item) => item.id === id
                );
-               listOrderedTodos[index].title = title.trim();
+               listOrderedTodos[index].title = trimmedTitle;
 
                localStorage.setItem(
                   `orderedTodos_${userName}`,

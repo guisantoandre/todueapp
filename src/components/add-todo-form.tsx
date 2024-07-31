@@ -24,15 +24,17 @@ export function AddTodoForm({ session }: Props) {
    async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault();
 
-      if (title === "") {
+      const trimmedTitle = title.trim();
+
+      if (trimmedTitle === "" || trimmedTitle === null) {
          toast.info("Task title is required");
          return;
       }
 
-      if (!session && title !== "") {
+      if (!session && title !== "" && title !== null) {
          const newList = [...localStorageTodos];
 
-         newList.push({ id: randomID(), title: title.trim(), is_done: false });
+         newList.push({ id: randomID(), title: trimmedTitle, is_done: false });
 
          setLocalStorageTodos(newList);
 
